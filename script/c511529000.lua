@@ -1,4 +1,4 @@
---Concentration Duel
+--Sphere Field
 local s,id=GetID()
 function s.initial_effect(c)
 	--Protection
@@ -16,15 +16,7 @@ function s.initial_effect(c)
 	local ed=ea:Clone()
 	ed:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
 	c:RegisterEffect(ed)
-	--remove
-	--local e0b=Effect.CreateEffect(c)
-	--e0b:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
-	--e0b:SetCode(EVENT_TO_HAND)
-	--e0b:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CANNOT_DISABLE)
-	--e0b:SetRange(LOCATION_REMOVED)
-	--e0b:SetTarget(s.damtg)
-	--e0b:SetOperation(s.damop)
-	--c:RegisterEffect(e0b)
+
 	--active
 	local e1=Effect.CreateEffect(c)
 	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CANNOT_DISABLE)
@@ -35,10 +27,10 @@ function s.initial_effect(c)
 	e1:SetCondition(s.activecondition)
 	e1:SetOperation(s.activeoperation)
 	Duel.RegisterEffect(e1,0)
-	--declare a normal summon or set
+
+	--xyz summon
 	local e3=Effect.CreateEffect(c)
 	e3:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_DISABLE_CHAIN)
-	--e3:SetDescription(aux.Stringid(id,0))
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetProperty(EFFECT_FLAG_BOTH_SIDE)
@@ -72,6 +64,7 @@ function s.damop(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 end
+
 --active condition+operation
 function s.activecondition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnCount()==1
@@ -79,35 +72,15 @@ end
 function s.activeoperation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	Duel.Hint(HINT_CARD,0,id)
-	if not Duel.SelectYesNo(1-tp,aux.Stringid(4007,1)) or not Duel.SelectYesNo(tp,aux.Stringid(4007,1)) then
+	if not Duel.SelectYesNo(1-tp,aux.Stringid(id,0)) or not Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
 		local sg=Duel.GetMatchingGroup(Card.IsCode,tp,0x7f,0x7f,nil,id)
 		Duel.SendtoDeck(sg,nil,-2,REASON_RULE)
 		return
 	end
-	--place a card into opponent removed zone and you removed zone
-	local tc=Duel.CreateToken(1-tp,id)
-	Duel.Remove(tc,POS_FACEUP,REASON_RULE)
+	--place a card into removed zone
 	Duel.Remove(c,POS_FACEUP,REASON_RULE)
-	local hand1=Duel.GetMatchingGroup(Card.GetControler,tp,LOCATION_HAND,0,nil)
-	Duel.SendtoDeck(hand1,tp,0,REASON_RULE)
-	local hand2=Duel.GetMatchingGroup(Card.GetControler,tp,0,LOCATION_HAND,nil)
-	Duel.SendtoDeck(hand2,1-tp,0,REASON_RULE)
-	--if duel is using obsolete ruling change the draw count to 0 to avoid player from draw the first card.
-	if Duel.IsDuelType(DUEL_1ST_TURN_DRAW) then
-		local e1=Effect.CreateEffect(c)
-		e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-		e1:SetType(EFFECT_TYPE_FIELD)
-		e1:SetCode(EFFECT_DRAW_COUNT)
-		e1:SetTargetRange(1,1)
-		e1:SetValue(0)
-		Duel.RegisterEffect(e1,tp)
-	end
+
 end
---[[
-	scripter note: not fully working, you can see monster by searching effect's
-	also, need event deck shuffle
-	the cost may be working wrong if it demand to dischard top card deck, because it may be turned on sending random card, since you don't have top deck card theoricaly
---]]
 
 s.listed_series={0x48}
 function s.filter(c,e)
@@ -120,14 +93,17 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_HAND,0,nil)
 		local pg=aux.GetMustBeMaterialGroup(tp,Group.CreateGroup(),tp,nil,nil,REASON_XYZ)
-		return #pg<=0 and g:IsExists(s.lvfilter,1,nil,g) 
+		return #pg<=0 and g:IsExists(s.lvfilter,1,nil,g)
 			and Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 function s.xyzfilter(c,e,tp)
-	return c:IsSetCard(0x48) and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
+	local m=c:GetMetatable(true)
+	return c:IsSetCard(0x48) and not c:IsSetCard(0x1048) and not c:IsNumberS() -- Is a Number, but not a Number C or Number S.
+		and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
 		and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,true,false)
+		and m and 0 < m.xyz_number and m.xyz_number <= 100 -- Is not a Number 10X.
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local pg=aux.GetMustBeMaterialGroup(tp,Group.CreateGroup(),tp,nil,nil,REASON_XYZ)
@@ -158,4 +134,3 @@ end
 function s.descon(e)
 	return e:GetHandler():GetOverlayCount()==0 and Duel.GetCurrentChain()==0
 end
-
