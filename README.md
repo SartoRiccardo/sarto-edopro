@@ -2,15 +2,15 @@
 
 To install these cards, open your `configs/configs.json`file in the game's folder, then paste the following lines in the following places:
 
-* [Adding the cards](#Adding the cards)
-* [Adding the images](#Adding the images)
-* [Connecting to the server](#Connecting to the server)
+* [Adding the cards](#adding-the-cards)
+* [Adding the images](#adding-the-images)
+* [Connecting to the server](#connecting-to-the-server)
 
 ### Adding the cards
 
 First, copy these lines of code:
 
-```json
+```
 ,
 		{
 			"url": "https://github.com/SartoRiccardo/sarto-edopro",
@@ -23,7 +23,7 @@ First, copy these lines of code:
 
 And paste them here:
 
-```json
+```
 ...
       "should_update": true,
 			"should_read": true
@@ -42,7 +42,7 @@ And paste them here:
 
 So you should have:
 
-```json
+```
 ...
       "should_update": true,
 			"should_read": true
@@ -70,7 +70,7 @@ So you should have:
 
 First, copy these lines of code:
 
-```json
+```
 ,
 		{
 			"url": "https://www.riccardosartori.it/api/img/edopro/{}.jpg",
@@ -80,7 +80,7 @@ First, copy these lines of code:
 
 And paste them here:
 
-```json
+```
 ...
 		},
 		{
@@ -95,7 +95,7 @@ And paste them here:
 
 So you should have:
 
-```json
+```
 ...
 		},
 		{
@@ -116,7 +116,7 @@ So you should have:
 
 If you want to play on my own server, first, copy these lines of code:
 
-```json
+```
 ,
 		{
 			"name": "Sarto Custom",
@@ -129,7 +129,7 @@ If you want to play on my own server, first, copy these lines of code:
 
 And paste them here:
 
-```json
+```
 ...
 		{
 			"name": "US West (Competitive)",
@@ -146,7 +146,7 @@ And paste them here:
 
 So you should have:
 
-```json
+```
 ...
 		{
 			"name": "US West (Competitive)",
